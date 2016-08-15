@@ -19,9 +19,6 @@ def ogip_dictionary_timing():
     this function returns the  required and optional keywords and columns
     as defined by OGIP 93-003 for a given extension
     """
-    global status
-    global REPORT
-
 
     """
     FOR RATE TABLE:
@@ -214,10 +211,18 @@ def ogip_dictionary_timing():
     """
     Define Optional Columns
     """
-    optcols = ['']
+    optcols = []
     timeref={'KEYWORDS':{'REQUIRED':reqkeys,'RECOMMENDED':optkeys}, 'COLUMNS':{'REQUIRED':reqcols,'RECOMMENDED':optcols}}
-    ogip = {'RATE':rate, 'EVENTS':events, 'TIMEREF':timeref,
-            'ENEBAND':eneband, 'GTI':gti,
+
+    #  Define which extensions must be present, and which are optional
+    extns={'REQUIRED':['RATE','EVENTS'],'OPTIONAL':['TIMEREF','ENEBAND','GTI']}
+
+    ogip = {'EXTENSIONS':extns, 
+            'RATE':rate, 
+            'EVENTS':events, 
+            'TIMEREF':timeref,
+            'ENEBAND':eneband, 
+            'GTI':gti,
             'REFERENCE':'OGIP/93-003',
             'REFTITLE':'The Proposed Timing FITS File Format for High Energy Astrophysics Data',
             'REFURL':'http://heasarc.gsfc.nasa.gov/FTP/caldb/docs/ogip/fits_formats/docs/rates/ogip_93_003/ogip_93_003.pdf'}

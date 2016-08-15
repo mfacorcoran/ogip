@@ -17,16 +17,17 @@ class retstat:
         self.NUMCHECKS=0
 
 
-def cmp_keys_cols(filename, extname, ogip_dict, status):
+def cmp_keys_cols(filename, this_extn, ref_extn, ogip_dict, status):
     """
     for a given filename from a fits file, get the required and optional keywords and columns
     then check that the given hdu has all the required elements
 
     filename is the name of the file that needs to be checked
-    extname should be either RATE, EVENTS, GTI or ENEBAND
+    ref_extn should be either RATE, EVENTS, GTI or ENEBAND
 
     @param filename: name of file being checked
-    @param extname: name of extension being checked
+    @param this_extn:  name of the extension being checked
+    @param ref_extn: name of reference extension (not always the same)
     @param ogip_dict: ogip_dictionary to check against
     @param status: return status
     @return:
@@ -37,28 +38,24 @@ def cmp_keys_cols(filename, extname, ogip_dict, status):
 
     hdu = pyfits.open(filename)
     extlist = [x.name for x in hdu]
-    try:
-        extno = extlist.index(extname)
-    except ValueError:
-        print "Extension Name %s not found in file %s" % (extname, filename)
-        return
+        
+    extno=extlist.index(this_extn)  
 
-    print "Checking Extension # %i EXTNAME = %s" % (extno, extname)
     hdr = hdu[extno].header
 
     colnames = hdu[extno].data.names
     colnames = [x.upper().strip() for x in colnames] # convert to uppercase, remove whitespace
 
-    missing_keywords = ['']
-    missing_columns = ['']
-    extna=extname.upper().strip()
+    missing_keywords = []
+    missing_columns = []
+    extna=ref_extn.upper().strip()
 
     ogip=ogip_dict[extna]
 
     for key in ogip['KEYWORDS']['REQUIRED']:
         Foundkey = check_keys(key, hdr,status)
         if not Foundkey:
-            rpt= "ERROR: Key %s not found in %s[%s]" % (key,file, extname)
+            rpt= "ERROR: Key %s not found in %s[%s]" % (key,file, this_extn)
             missing_keywords.append(key)
             print rpt
             status.REPORT.append(rpt)
@@ -66,14 +63,14 @@ def cmp_keys_cols(filename, extname, ogip_dict, status):
     for key in ogip['KEYWORDS']['RECOMMENDED']:
         Foundkey = check_keys(key,hdr,status)
         if not Foundkey:
-            rpt= "WARNING: Key %s not found in %s[%s]" % (key,file,extname)
+            rpt= "WARNING: Key %s not found in %s[%s]" % (key,file, this_extn)
             print rpt
             status.REPORT.append(rpt)
             status.WARNINGS += 1
     for col in ogip['COLUMNS']['REQUIRED']:
         Foundcol = check_cols(col, colnames,status)
         if not Foundcol:
-            rpt = "ERROR: Required column %s missing from %s[%s]" % (col, file, extname)
+            rpt = "ERROR: Required column %s missing from %s[%s]" % (col, file,  this_extn)
             print rpt
             status.REPORT.append(rpt)
             status.ERRORS += 1
@@ -81,7 +78,7 @@ def cmp_keys_cols(filename, extname, ogip_dict, status):
     for col in ogip['COLUMNS']['RECOMMENDED']:
         Foundcol = check_cols(col, colnames,status)
         if not Foundcol:
-            rpt = "WARNING: Recommended column %s missing from %s[%s]" % (col, file, extname)
+            rpt = "WARNING: Recommended column %s missing from %s[%s]" % (col, file,  this_extn)
             print rpt
             status.REPORT.append(rpt)
             status.WARNINGS += 1
@@ -90,7 +87,7 @@ def cmp_keys_cols(filename, extname, ogip_dict, status):
     if len(missing_columns) > 1:
         missing_columns= missing_columns[1:]
 
-    missing={'EXTNAME':extname ,'MISSING_KEYWORDS':missing_keywords, 'MISSING_COLUMNS':missing_columns}
+    missing={'REF_EXTN':ref_extn ,'MISSING_KEYWORDS':missing_keywords, 'MISSING_COLUMNS':missing_columns}
 
     return missing
 
