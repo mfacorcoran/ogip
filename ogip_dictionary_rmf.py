@@ -108,14 +108,23 @@ def ogip_dictionary_rmf():
     """
     Define Optional Columns
     """
-    optcols = ['']
+    optcols = []
 
-    ebounds={'KEYWORDS':{'REQUIRED':reqkeys,'RECOMMENDED':optkeys}, 'COLUMNS':{'REQUIRED':reqcols,'RECOMMENDED':optcols}}
+    ebounds={'KEYWORDS':{'REQUIRED':reqkeys,'RECOMMENDED':optkeys}, 
+             'COLUMNS':{'REQUIRED':reqcols,'RECOMMENDED':optcols}}
+
+    extns={'REQUIRED':['MATRIX'],'OPTIONAL':['EBOUNDS']}
 
     #
     # create structure for redistribution matrix file
     #
-    ogip = {'MATRIX':specresp,'EBOUNDS':ebounds,'REFERENCE':'OGIP/92-002'}
+    ogip = {'EXTENSIONS':extns,
+            'MATRIX':specresp,
+            'EBOUNDS':ebounds,
+            'REFERENCE':'OGIP/92-002, OGIP/92-002a',
+            'REFURL':'https://heasarc.gsfc.nasa.gov/docs/heasarc/ofwg/ofwg_recomm.html',
+            'REFTITLE':'The Calibration Requirements for Spectral Analysis'}
+
     return ogip
 
 
